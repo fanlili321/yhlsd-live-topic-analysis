@@ -157,3 +157,19 @@
    避免明显重复"这个轻量方案（不逐篇打开大纲正文比对）。已经把这个步骤写进 `SKILL.md` 注意事项11、
    `report_format.md` 六、部分，以及本地定时任务的 prompt（顺带把定时任务 prompt 里其他几处滞后的规则
    ——期字、二点五——也一起同步了，这个 prompt 是独立文件，不会跟着 skill 文件自动更新）。
+
+### 2026-08-13 迁移到 GitHub，取代手动 zip 备份
+用户要求："将这个skill上传到github之后实现自动更新，不再需要本地备份"。
+- **仓库**：`https://github.com/fanlili321/yhlsd-live-topic-analysis`，**private**（脚本里硬编码着真实
+  Hub API token，用户明确选了"private 仓库，保留 token 原样"，没有改成环境变量）。
+- **本地目录变成了这个仓库的 clone**：`~/Desktop/范丽丽./自动化备份/workbuddy/yhlsd-live-topic-analysis-skill/`
+  （`~/.workbuddy/skills/yhlsd-live-topic-analysis` 这个软链接指向它，没变）。`.gitignore` 排除了
+  `__pycache__/`、`*.pyc`、`.DS_Store`。
+- **"自动更新"实现为两半**（用户要求"两个都要"）：(a) 每次执行前先 `git pull --ff-only`，写进了 `SKILL.md`
+  第0步、`RUNME.md`、本地定时任务 prompt；(b) 我以后改完 skill 代码要记得 `git add -A && git commit && git push`
+  ——**这是我自己要记住的流程，不是脚本自动做的**，`SKILL.md` 注意事项12 里写了提醒。
+- **不再需要 `[[skill-backup-convention]]` 里那套"zip 到 Desktop/自动化备份/claude"的做法**——那是这个
+  skill 之前的备份方式，现在被 git 取代了。注意这只是**这一个 skill 的例外**，`skill-backup-convention`
+  这条通用记忆本身没有变，其他 skill 说"备份skill"默认还是走 zip 那套，除非用户明确说也要迁移到 git。
+  之前 `Desktop/自动化备份/claude/yhlsd-live-topic-analysis备份_20260806.zip` 那个旧 zip 没有删，
+  只是不会再产生新的了。
