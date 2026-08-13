@@ -8,8 +8,14 @@
 
 收到这个包后，按以下步骤操作：
 
-### 0. 环境准备
+### 0. 环境准备 + 同步最新代码
+
+这个 skill 托管在私有仓库 `https://github.com/fanlili321/yhlsd-live-topic-analysis`（2026-08-13起）。
+如果是从这个仓库 clone 下来的，先 pull 一下确保是最新版本；如果是收到这份 RUNME.md 包（比如别人发的 zip），
+建议直接改成 clone 这个仓库，而不是用零散文件——能自动同步以后的规则更新，不用再手动同步 zip 包。
+
 ```bash
+git pull --ff-only   # 如果当前目录是这个仓库的 clone
 pip install requests   # 唯一依赖
 ```
 
@@ -98,10 +104,15 @@ lark-cli im +messages-send --chat-id oc_94c21bc74eb7413a61c4647ca15a78ea --text 
 | 推送 chat（范丽丽的飞书CLI） | oc_94c21bc74eb7413a61c4647ca15a78ea |
 | 数据窗口 | 最近4天（--days 4，固定规则，2026-08-13起，不要改） |
 | 分类体系 | 13类（唯一数据源在 references/categories.md，classify_messages.py 动态解析） |
+| 源码仓库 | https://github.com/fanlili321/yhlsd-live-topic-analysis （private，2026-08-13起） |
+| 直播大纲文件夹 | IscSfJSjXl1nvIdActdcwwAKnDg（写选题前查重用，2026-08-13修正过） |
 
 ## 定时任务
 
-每周二、周四 14:00 北京时间自动执行（通过 WorkBuddy automation 管理）。
+每周二、周四 14:00 北京时间自动执行。2026-08-13 起改成 Claude Code 本地定时任务管理（`yhlsd-live-topic-analysis`，
+`~/.claude/scheduled-tasks/yhlsd-live-topic-analysis/SKILL.md`）——之前用的 WorkBuddy automation
+（`automation-1785846811489`）因为 rrule 被意外改成每天触发、又反复遇到 token/接口失败导致执行质量失控，
+已经被用户手动 PAUSED，不再使用。
 
 ## 文件结构
 ```

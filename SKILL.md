@@ -12,7 +12,24 @@ agent_created: true
 
 ## 工作流
 
-整个流程按4步执行，每步完成后确认结果再继续。
+整个流程按4步执行，每步完成后确认结果再继续。**执行第1步之前，先做一次 git pull（见下）。**
+
+### 第0步：同步最新代码（git pull）
+
+这个 skill 的源码托管在私有仓库 `https://github.com/fanlili321/yhlsd-live-topic-analysis`（2026-08-13 起），
+本地目录 `~/.workbuddy/skills/yhlsd-live-topic-analysis` 是一个软链接，指向的真实目录
+`~/Desktop/范丽丽./自动化备份/workbuddy/yhlsd-live-topic-analysis-skill/` 是这个仓库的本地 clone。
+**每次执行前先拉一下最新代码**，这样如果规则在网页上被改过（或者其他协作者改过），能自动生效，不需要再手动
+zip 备份同步：
+
+```bash
+cd ~/.workbuddy/skills/yhlsd-live-topic-analysis && git pull --ff-only
+```
+
+如果 `git pull` 失败（比如本地有未提交的改动导致冲突），**不要用 `git reset --hard`/`git checkout .` 之类的
+方式强行覆盖本地改动**——先看一下 `git status`，本地改动可能是还没来得及提交的正常工作内容。遇到这种情况就
+跳过 pull，正常往下执行，并在完成后的通知里提一句"本次跳过了 git pull，本地有未提交改动"，让人来处理，不要
+自己尝试解决冲突。
 
 ### 第1步：拉取全量留言
 
@@ -142,3 +159,7 @@ lark-cli im +messages-send --chat-id oc_94c21bc74eb7413a61c4647ca15a78ea --text 
     `lark-cli api GET /open-apis/drive/v1/files --params '{"folder_token":"IscSfJSjXl1nvIdActdcwwAKnDg","page_size":30}'`
     拉最新一页"每周直播大纲"文件夹（token 2026-08-13 才修正过，见 `report_format.md`），扫一眼"（已确认）"的
     标题，避开主题明显重复的。**只看标题级别，不用逐篇打开大纲正文比对。**
+12. **改了这个 skill 的任何文件之后，记得 commit + push 到 GitHub（`fanlili321/yhlsd-live-topic-analysis`
+    私有仓库，2026-08-13 起）。** 不用再手动 zip 备份到 Desktop——git 就是备份和版本历史。执行日常分析任务
+    （跑第1-4步）不需要 push，只有**改了 skill 本身的代码/规则**才需要。commit message 简单说清楚改了什么、
+    为什么改就行，不用太讲究格式。
