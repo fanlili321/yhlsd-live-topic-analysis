@@ -5,8 +5,22 @@ yhlsd 分析报告 XML 生成脚本
 用法：python3 generate_report.py --input classification.json --output report.xml
 """
 
-import argparse, json, os
+import argparse, json, os, re
 from datetime import datetime
+
+
+def clean_text(s):
+    """清洗从用户原文里带出来的内容，避免破坏飞书文档 XML。
+
+    用户留言里常混有原始 HTML（如公众号消息里的 <a class=... href=...> 富文本链接），
+    直接拼进 XML 会导致未闭合标签把整篇文档 tokenization 打断（2026-09-08 实测踩过：
+    block_insert_after 报 partial_success + "XML tokenization error"，报告从三、代表性原问
+    处被截断，四五六节全丢）。这里统一做：剥掉 HTML 标签 + 转义 XML 特殊字符。
+    """
+    s = re.sub(r"<[a-zA-Z][^>]*>", "", s)   # 剥掉 <a ...> <img ...> 等 HTML 标签
+    s = re.sub(r"</[a-zA-Z][^>]*>", "", s)  # 剥掉 </a> 等闭合标签
+    s = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return s
 
 
 PLATFORM_DESCRIPTIONS = {
@@ -141,7 +155,7 @@ def generate_xml(data, cut_off_date=None, deltas=None, as_of_date=None):
     for cat, count in top_items[:8]:
         cat_samples = samples.get(cat, [])
         if cat_samples:
-            quotes = "；".join([s["content"][:180] for s in cat_samples[:3]])
+            quotes = "；".join([clean_text(s["content"][:180]) for s in cat_samples[:3]])
             xml += f"<li><b>{cat}：</b>{quotes}</li>\n"
     xml += "</ul>\n"
 
