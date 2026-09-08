@@ -19,6 +19,14 @@ DEFAULT_TOKEN = "26e5637a4ebc27256b7ba736e9fdb1c5436ebb70988273b793638868455273e
 
 PLATFORMS = ["微信公众号", "知识星球", "微博", "企业微信"]
 
+# 上游平台名 → 归并到四个标准渠道。2026-09-08 发现上游新增了"雪球企微钉友会群"
+# 这个平台名（其实是企业微信下的一个雪球钉友会群），之前没在 PLATFORMS 里，导致
+# 约490条/4天被当成 unknown platform 直接跳过、丢失了。这里做别名映射归并到企业微信，
+# 避免再出现"新渠道数据被静默丢弃"的情况。
+PLATFORM_ALIASES = {
+    "雪球企微钉友会群": "企业微信",
+}
+
 # Rough baselines for a 7-day window (scaled for other windows below), used only to
 # flag suspiciously low counts — e.g. a platform-side page cap silently returning
 # fewer rows than requested with a 200 OK, instead of erroring like a dead token would.
@@ -67,6 +75,7 @@ def split_by_platform(items):
     by_platform = {p: [] for p in PLATFORMS}
     for m in items:
         p = m.get("platform", "")
+        p = PLATFORM_ALIASES.get(p, p)  # 别名归并（如"雪球企微钉友会群"→"企业微信"）
         if p in by_platform:
             by_platform[p].append(m)
         else:
